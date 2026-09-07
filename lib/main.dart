@@ -1,15 +1,223 @@
 import 'package:flutter/material.dart';
-void main()=>runApp(const A());
-class A extends StatelessWidget{const A({super.key});Widget build(BuildContext c)=>MaterialApp(debugShowCheckedModeBanner:false,title:'Amar Recipe Admin',theme:ThemeData(useMaterial3:true,colorSchemeSeed:Colors.indigo),home:const Login());}
-class Login extends StatefulWidget{const Login({super.key});State<Login> createState()=>_L();}
-class _L extends State<Login>{final e=TextEditingController(),p=TextEditingController();String err='';
-Widget build(BuildContext c)=>Scaffold(body:Center(child:ConstrainedBox(constraints:const BoxConstraints(maxWidth:420),child:Padding(padding:const EdgeInsets.all(24),child:Card(child:Padding(padding:const EdgeInsets.all(24),child:Column(mainAxisSize:MainAxisSize.min,children:[const Icon(Icons.admin_panel_settings,size:70),const Text('Amar Recipe Admin',style:TextStyle(fontSize:25,fontWeight:FontWeight.bold)),const SizedBox(height:20),TextField(controller:e,decoration:const InputDecoration(labelText:'Admin Email',border:OutlineInputBorder())),const SizedBox(height:12),TextField(controller:p,obscureText:true,decoration:const InputDecoration(labelText:'Password',border:OutlineInputBorder())),Text(err,style:const TextStyle(color:Colors.red)),FilledButton(onPressed:(){if(e.text=='admin@example.com'&&p.text=='admin123')Navigator.pushReplacement(context,MaterialPageRoute(builder:(_)=>const Dash()));else setState(()=>err='ভুল ইমেইল/পাসওয়ার্ড');},child:const Text('Login')),const Text('Demo: admin@example.com / admin123')]))))));}}
-class Item{String n,c,co,img,t,d;Item(this.n,this.c,this.co,this.img,this.t,this.d);}
-final items=[Item('চিকেন বিরিয়ানি','ভাত','বাংলাদেশ','https://images.unsplash.com/photo-1563379091339-03246963d96c?w=900','60 মিনিট','সুগন্ধি বিরিয়ানি'),Item('ইলিশ ভাজা','মাছ','বাংলাদেশ','https://images.unsplash.com/photo-1547592180-85f173990554?w=900','25 মিনিট','মচমচে ইলিশ')];
-class Dash extends StatefulWidget{const Dash({super.key});State<Dash> createState()=>_Dash();}
-class _Dash extends State<Dash>{int s=0;Widget build(BuildContext c){final ps=[recipes(),categories(),const Center(child:Text('Settings'))];return Scaffold(appBar:AppBar(title:const Text('Amar Recipe Admin')),drawer:Drawer(child:ListView(children:[const DrawerHeader(child:Text('Admin Panel',style:TextStyle(fontSize:25))),ListTile(title:const Text('Recipes'),onTap:(){setState(()=>s=0);Navigator.pop(c);}),ListTile(title:const Text('Categories'),onTap:(){setState(()=>s=1);Navigator.pop(c);}),ListTile(title:const Text('Settings'),onTap:(){setState(()=>s=2);Navigator.pop(c);})])),body:ps[s]);}
-Widget recipes()=>ListView(padding:const EdgeInsets.all(16),children:[Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children:[const Text('Recipes',style:TextStyle(fontSize:28,fontWeight:FontWeight.bold)),FilledButton.icon(onPressed:add,icon:const Icon(Icons.add),label:const Text('Add'))]),...items.asMap().entries.map((x)=>Card(child:ListTile(leading:CircleAvatar(backgroundImage:NetworkImage(x.value.img)),title:Text(x.value.n),subtitle:Text('${x.value.co} • ${x.value.c} • ${x.value.t}'),trailing:Wrap(children:[IconButton(onPressed:()=>edit(x.key),icon:const Icon(Icons.edit)),IconButton(onPressed:()=>setState(()=>items.removeAt(x.key)),icon:const Icon(Icons.delete))])))]); 
-Widget categories()=>ListView(padding:const EdgeInsets.all(16),children:[const Text('Categories',style:TextStyle(fontSize:28,fontWeight:FontWeight.bold)),...['ভাত','মাছ','মাংস','সবজি','ডাল','ভর্তা','নুডলস','পাস্তা','মিষ্টি','পানীয়'].map((x)=>ListTile(title:Text(x),trailing:const Icon(Icons.edit)))]);
-void add()=>form();void edit(int i)=>form(i,items[i]);
-void form([int? i,Item? old]){final n=TextEditingController(text:old?.n??''),c=TextEditingController(text:old?.c??''),co=TextEditingController(text:old?.co??'বাংলাদেশ'),img=TextEditingController(text:old?.img??''),t=TextEditingController(text:old?.t??''),d=TextEditingController(text:old?.d??'');showDialog(context:context,builder:(x)=>AlertDialog(title:Text(i==null?'Add Recipe':'Edit Recipe'),content:SizedBox(width:420,child:SingleChildScrollView(child:Column(children:[TextField(controller:n,decoration:const InputDecoration(labelText:'Name')),TextField(controller:c,decoration:const InputDecoration(labelText:'Category')),TextField(controller:co,decoration:const InputDecoration(labelText:'Country')),TextField(controller:img,decoration:const InputDecoration(labelText:'Image URL')),TextField(controller:t,decoration:const InputDecoration(labelText:'Time')),TextField(controller:d,decoration:const InputDecoration(labelText:'Description'))]))),actions:[TextButton(onPressed:()=>Navigator.pop(x),child:const Text('Cancel')),FilledButton(onPressed:(){final z=Item(n.text,c.text,co.text,img.text,t.text,d.text);setState(()=>i==null?items.add(z):items[i!]=z);Navigator.pop(x);},child:const Text('Save'))]));}
+
+void main() => runApp(const AdminApp());
+
+class AdminApp extends StatelessWidget {
+  const AdminApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'আমার রেসিপি - Admin',
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.deepOrange),
+      home: const LoginPage(),
+    );
+  }
+}
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final email = TextEditingController();
+  final password = TextEditingController();
+
+  void login() {
+    if (email.text.trim() == 'admin@example.com' && password.text == 'admin123') {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DashboardPage()));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email অথবা Password ভুল')));
+    }
+  }
+
+  @override
+  void dispose() {
+    email.dispose();
+    password.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Icon(Icons.admin_panel_settings, size: 70),
+                    const SizedBox(height: 16),
+                    const Text('আমার রেসিপি', textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    const Text('Admin Panel', textAlign: TextAlign.center, style: TextStyle(fontSize: 18)),
+                    const SizedBox(height: 28),
+                    TextField(controller: email, decoration: const InputDecoration(labelText: 'Admin Email', border: OutlineInputBorder(), prefixIcon: Icon(Icons.email))),
+                    const SizedBox(height: 16),
+                    TextField(controller: password, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder(), prefixIcon: Icon(Icons.lock))),
+                    const SizedBox(height: 20),
+                    FilledButton(onPressed: login, child: const Padding(padding: EdgeInsets.all(12), child: Text('Login'))),
+                    const SizedBox(height: 12),
+                    const Text('Demo: admin@example.com / admin123', textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Recipe {
+  Recipe({required this.name, required this.category, required this.country, required this.time, this.featured = false});
+  String name;
+  String category;
+  String country;
+  String time;
+  bool featured;
+}
+
+final List<Recipe> recipes = [
+  Recipe(name: 'Chicken Biryani', category: 'ভাত', country: 'Bangladesh', time: '60 min', featured: true),
+  Recipe(name: 'Ilish Bhaja', category: 'মাছ', country: 'Bangladesh', time: '25 min'),
+  Recipe(name: 'Chicken Curry', category: 'মাংস', country: 'India', time: '45 min'),
+];
+
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  int index = 0;
+
+  void addRecipe() {
+    final name = TextEditingController();
+    final category = TextEditingController();
+    final country = TextEditingController();
+    final time = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('নতুন Recipe যোগ করুন'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: name, decoration: const InputDecoration(labelText: 'Recipe name')),
+              TextField(controller: category, decoration: const InputDecoration(labelText: 'Category')),
+              TextField(controller: country, decoration: const InputDecoration(labelText: 'Country')),
+              TextField(controller: time, decoration: const InputDecoration(labelText: 'Cooking time')),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () {
+              if (name.text.trim().isEmpty) return;
+              setState(() {
+                recipes.add(Recipe(
+                  name: name.text.trim(),
+                  category: category.text.trim().isEmpty ? 'অন্যান্য' : category.text.trim(),
+                  country: country.text.trim().isEmpty ? 'Bangladesh' : country.text.trim(),
+                  time: time.text.trim().isEmpty ? '30 min' : time.text.trim(),
+                ));
+              });
+              Navigator.pop(dialogContext);
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget recipesPage() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Recipes'), actions: [IconButton(onPressed: addRecipe, icon: const Icon(Icons.add))]),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: recipes.length,
+        itemBuilder: (context, i) {
+          final r = recipes[i];
+          return Card(
+            child: ListTile(
+              leading: CircleAvatar(child: Text('${i + 1}')),
+              title: Text(r.name),
+              subtitle: Text('${r.category} • ${r.country} • ${r.time}'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(r.featured ? Icons.star : Icons.star_border),
+                  IconButton(onPressed: () => setState(() => recipes.removeAt(i)), icon: const Icon(Icons.delete)),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget categoriesPage() {
+    const categories = ['ভাত', 'মাছ', 'মাংস', 'সবজি', 'ডাল', 'ভর্তা', 'নাস্তা', 'মিষ্টি', 'পানীয়'];
+    return Scaffold(
+      appBar: AppBar(title: const Text('Categories')),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: categories.length,
+        itemBuilder: (context, i) => Card(child: ListTile(leading: const Icon(Icons.category), title: Text(categories[i]))),
+      ),
+    );
+  }
+
+  Widget settingsPage() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: const Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Admin Settings', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
+            Text('বর্তমানে এটি Demo Admin Panel।'),
+            SizedBox(height: 8),
+            Text('পরের ধাপে Supabase যুক্ত করলে User App-এর Recipe, ছবি, Category এবং Featured Recipe অনলাইনে নিয়ন্ত্রণ করা যাবে।'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pages = [recipesPage(), categoriesPage(), settingsPage()];
+    return Scaffold(
+      body: pages[index],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: index,
+        onDestinationSelected: (i) => setState(() => index = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.restaurant_menu), label: 'Recipes'),
+          NavigationDestination(icon: Icon(Icons.category), label: 'Categories'),
+          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
+        ],
+      ),
+    );
+  }
 }
